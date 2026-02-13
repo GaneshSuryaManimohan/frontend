@@ -53,17 +53,17 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
-            steps {
-                script{
-                    def params = [
-                        string(name: 'APP_VERSION', value: "${APP_VERSION}")
-                    ]
-                    // Triggers the job 'frontend-deploy'
-                    build job: 'frontend-deploy', parameters: params, wait: false
-                } 
-            }
-        }
+        // stage('Deploy') {
+        //     steps {
+        //         script{
+        //             def params = [
+        //                 string(name: 'APP_VERSION', value: "${APP_VERSION}")
+        //             ]
+        //             // Triggers the job 'frontend-deploy'
+        //             build job: 'frontend-deploy', parameters: params, wait: false
+        //         } 
+        //     }
+        // }
     }
     post {
         always {
