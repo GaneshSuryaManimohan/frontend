@@ -1,7 +1,7 @@
 apiVersion: elbv2.k8s.aws/v1beta1
 kind: TargetGroupBinding
 metadata:
-  name: my-tgb
+  name: expense-dev-frontend-tg
   namespace: expense
 spec:
   serviceRef:
