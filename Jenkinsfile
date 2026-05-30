@@ -10,7 +10,7 @@ pipeline {
 
     environment{
          APP_VERSION = '' // Variable Declaration
-         NEXUS_URL = 'nexus.surya-devops.site:8081'
+         NEXUS_URL = 'nexus.surya-devops.online:8081'
     }
     stages {
         stage('read the version'){
@@ -31,39 +31,64 @@ pipeline {
             }
         }
 
-        stage('Nexus Artifact Upload') {
-            steps {
-                script{
-                    nexusArtifactUploader(
-                        nexusVersion: 'nexus3',
-                        protocol: 'http',
-                        nexusUrl: "${NEXUS_URL}",
-                        groupId: 'com.expense',
-                        version: "${APP_VERSION}",
-                        repository: "frontend",
-                        credentialsId: 'nexus_auth',
-                        artifacts: [
-                            [artifactId: "frontend",
-                            classifier: '',
-                            file: "frontend-" + "${APP_VERSION}" + ".zip",
-                            type: 'zip']
-                        ]
-                    )
-                }
+        stage('Docker Build and Push'){
+            steps{
+                sh """
+                    aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${acc_id}.dkr.ecr.${region}.amazonaws.com
+
+                    docker build -t ${acc_id}.dkr.ecr.${region}.amazonaws.com/expense-dev-frontend:${APP_VERSION} .
+
+                    docker push ${acc_id}.dkr.ecr.${region}.amazonaws.com/expense-dev-frontend:${APP_VERSION}
+
+                """
             }
         }
 
-        stage('Deploy') {
-            steps {
-                script{
-                    def params = [
-                        string(name: 'APP_VERSION', value: "${APP_VERSION}")
-                    ]
-                    // Triggers the job 'frontend-deploy'
-                    build job: 'frontend-deploy', parameters: params, wait: false
-                } 
+        stage('Deploy'){
+            steps{
+                sh """
+                    aws eks update-kubeconfig --region us-east-1 --name expense
+                    cd helm
+                    sed -i "s/IMAGE_VERSION/${APP_VERSION}/g" values.yaml
+                    helm install frontend .  
+                """
             }
         }
+
+
+        // stage('Nexus Artifact Upload') {
+        //     steps {
+        //         script{
+        //             nexusArtifactUploader(
+        //                 nexusVersion: 'nexus3',
+        //                 protocol: 'http',
+        //                 nexusUrl: "${NEXUS_URL}",
+        //                 groupId: 'com.expense',
+        //                 version: "${APP_VERSION}",
+        //                 repository: "frontend",
+        //                 credentialsId: 'nexus_auth',
+        //                 artifacts: [
+        //                     [artifactId: "frontend",
+        //                     classifier: '',
+        //                     file: "frontend-" + "${APP_VERSION}" + ".zip",
+        //                     type: 'zip']
+        //                 ]
+        //             )
+        //         }
+        //     }
+        // }
+
+        // stage('Deploy') {
+        //     steps {
+        //         script{
+        //             def params = [
+        //                 string(name: 'APP_VERSION', value: "${APP_VERSION}")
+        //             ]
+        //             // Triggers the job 'frontend-deploy'
+        //             build job: 'frontend-deploy', parameters: params, wait: false
+        //         } 
+        //     }
+        // }
     }
     post {
         always {

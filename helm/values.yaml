@@ -1,0 +1,6 @@
+deployment:
+  replicacount: 2
+  imageversion: IMAGE_VERSION #This is a placeholder
+service:
+  namespace: expense
+  port: 8080

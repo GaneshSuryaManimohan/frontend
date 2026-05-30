@@ -1,0 +1,42 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: frontend
+  namespace: expense
+  labels:
+    component: frontend
+    project: expense
+    tier: webtier
+spec:
+  replicas: {{ .Values.deployment.replicacount }}
+  selector:
+    matchLabels:
+      component: frontend
+      project: expense
+      tier: webtier
+  template:
+    metadata:
+      labels:
+        component: frontend
+        project: expense
+        tier: webtier
+    spec:
+      containers:
+        - name: frontend
+          image: 328342418911.dkr.ecr.us-east-1.amazonaws.com/expense-dev-frontend:{{ .Values.deployment.imageversion }}
+          # the volumeMounts section is used to mount the ConfigMap as a file inside the container
+          volumeMounts:
+            - name: nginx-config
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+              readOnly: true
+          # envFrom:
+          #   - configMapRef:
+          #       name: frontend
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: frontend
+          items:
+           - key: nginx.conf
+             path: nginx.conf

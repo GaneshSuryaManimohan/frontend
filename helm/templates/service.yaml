@@ -1,0 +1,17 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: frontend
+  namespace: expense
+spec:
+  type: LoadBalancer
+  selector:
+    component: frontend
+    project: expense
+    tier: webtier
+  # Define the type of service (ClusterIP, NodePort, LoadBalancer)
+  # if type is not specified, it defaults to ClusterIP
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: {{ .Values.service.port }}
