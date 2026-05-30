@@ -11,6 +11,8 @@ pipeline {
     environment{
          APP_VERSION = '' // Variable Declaration
          NEXUS_URL = 'nexus.surya-devops.online:8081'
+         region = 'us-east-1'
+         acc_id = '328342418911'
     }
     stages {
         stage('read the version'){
@@ -47,7 +49,7 @@ pipeline {
         stage('Deploy'){
             steps{
                 sh """
-                    aws eks update-kubeconfig --region us-east-1 --name expense
+                    aws eks update-kubeconfig --region ${region} --name expense
                     cd helm
                     sed -i "s/IMAGE_VERSION/${APP_VERSION}/g" values.yaml
                     helm install frontend .  
