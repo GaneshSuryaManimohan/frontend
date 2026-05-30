@@ -1,0 +1,9 @@
+apiVersion: elbv2.k8s.aws/v1beta1
+kind: TargetGroupBinding
+metadata:
+  name: my-tgb
+spec:
+  serviceRef:
+    name: frontend # route traffic to the frontend service
+    port: 80
+  targetGroupARN: arn:aws:elasticloadbalancing:us-east-1:328342418911:targetgroup/targetgroup/expense-dev-frontend-tg/2d285166ad7c0f71
