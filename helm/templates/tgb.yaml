@@ -2,6 +2,7 @@ apiVersion: elbv2.k8s.aws/v1beta1
 kind: TargetGroupBinding
 metadata:
   name: my-tgb
+  namespace: expense
 spec:
   serviceRef:
     name: frontend # route traffic to the frontend service
